@@ -3,15 +3,17 @@ const uuid = require('uuid/v4');
 const session = require('express-session')
 const FileStore = require('session-file-store')(session);
 const bodyParser = require('body-parser');
+const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy;
 const users = [{
   id:'2f24vvg', email: "rest@gustav.com", password: 'password'
 }]
-passposrt.use(new LocalStrategy(
+passport.use(new LocalStrategy(
     {usernameField: 'email'},
     (email, password, done) => {
       console.log('Inside local strategy callback')
       const user = users[0]
+      console.log(user)
       if(email === user.email && password === user.password) {
         console.log('Local strategy returned true')
         return done(null, user)
@@ -36,18 +38,20 @@ app.use(session({
   resave: false,
   saveUninitialized: true
 }))
+app.use(passport.initialize());
+app.use(passport.session())
 app.get('/', (req, res) => {
   console.log("in router get")
   console.log('Inside the homepage callback function')
   console.log(req.sessionID)
   res.send(`You hit home page\n`)
 })
-app.get('/login', (req, res) => {
-    console.log('Inside GET /login callback function')
-    console.log(req.sessionID)
-    res.send(`you got the login page\n`)
+app.get('/login',(req,res) =>{
+  console.log('inside GET /login callback')
+  console.log(req.sessionID)
+  res.send(`You gat the login page!\n`)
 })
-app.post('/login', (req, res) => {
+app.post('/login', (req, res, next) => {
     console.log('Inside POST /login callback function')
     passport.authenticate('local', (err, user, info ) => {
       console.log('Inside passport.authenticate() callback');
