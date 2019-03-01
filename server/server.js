@@ -1,23 +1,24 @@
 const express = require('express');
 const session = require('express-session');
+const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const app = express();
-var MemcachedStore = require('connect-memcached')(session);
 app.use(cookieParser());
-app.use(session({
-  secret: 'some-private-key',
-  key :'test',
-  proxy: 'true',
-  store : new MemcachedStore({
-    hosts: ['127.0.0.1:11211'],
-    secret: 'memcached-secret-key'
-  })
-}))
+app.use(bodyParser());
 app.get('/', (req, res,next) => {
-  var sessData = req.session;
-  sessData.someAttribute = "foo";
+  
   res.send('Returning with some text')
 })
+app.get('/login', (req, res,next) => {
+  res.send('You have come at home')
+})
+
+app.post('/login', (req, res,next) => {
+  console.dir(req.body)
+  res.send('You sent a post request')
+})
+
+
 app.get('/bar', function(req, res, next){
   console.dir(req.session)
   var someAttribute = req.session.someAttribute;
